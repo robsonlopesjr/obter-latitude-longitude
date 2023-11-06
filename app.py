@@ -1,4 +1,14 @@
 import streamlit as st
+from geopy.geocoders import Nominatim
+
+
+def geocode(item):
+    geolocator = Nominatim(user_agent='my_app')
+    location = geolocator.geocode(item)
+    if location:
+        return location.latitude, location.longitude
+    else:
+        return None, None
 
 
 st.set_page_config(
@@ -38,7 +48,7 @@ list_uf = [
 ]
 
 st.title('Formulário para obtenção da Latitude e Longitude de um endereço')
-st.subheader('Todos os campos abaixo são obrigatórios')
+st.subheader('Todos os campos abaixo são obrigatórios!')
 
 with st.form(key='my_form'):
     input_address = st.text_input(
@@ -70,6 +80,11 @@ with st.form(key='my_form'):
         if not input_address or not input_number or not input_neighborhood or not input_city or not input_uf:
             st.error("Há campos que não foram preenchidos!", icon="🚨")
         else:
-            st.success("Todos os campos foram preenchidos!", icon="✅")
+            address = input_address + ', ' + str(input_number) + ', ' + input_neighborhood + ', ' + input_city + ', ' + input_uf + ', Brasil'
+            latitude, longitude = geocode(address)
 
-
+            if not latitude or not longitude:
+                st.error("Não foi possível encontrar as coodernadas de latitude e longitude com os dados informados!", icon="🚨")
+            else:
+                st.write(f'A Latitude é: {latitude}')
+                st.write(f'A Longitude é: {longitude}')
